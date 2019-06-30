@@ -5,8 +5,7 @@ using System.Collections.Generic;
 
 namespace Tetsu.Web.Http {
     public static class Parser {
-        public static async Task<Request> ParseRequest(Stream stream) {
-            var read = new StreamReader(stream);
+        public static async Task<Request> ParseRequest(StreamReader read) {
             var reqLine = await read.ReadLineAsync();
             var reqParts = reqLine.Split(' ');
 
@@ -27,6 +26,9 @@ namespace Tetsu.Web.Http {
                 Headers = headers,
             };
         }
+
+        public static Task<Request> ParseRequest(Stream stream) =>
+            ParseRequest(new StreamReader(stream));
 
         public static Request ParseRequest(string req) =>
            ParseRequest(new MemoryStream(Encoding.UTF8.GetBytes(req))).Result;

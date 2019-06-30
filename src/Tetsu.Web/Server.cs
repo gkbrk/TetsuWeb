@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -41,29 +42,41 @@ namespace Tetsu.Web
             listener.Start();
             System.Console.WriteLine($"Listening on {ip}:{port}...");
 
-            while (true) {
+            while (true)
+            {
                 var sock = await listener.AcceptTcpClientAsync();
                 var stream = sock.GetStream();
+                var reader = new StreamReader(stream);
 
-                var context = new HttpContext
+                while (true)
                 {
-                    Request = await Parser.ParseRequest(stream),
-                    Response = new Response()
-                };
+                    try
+                    {
+                        var context = new HttpContext
+                        {
+                            Request = await Parser.ParseRequest(reader),
+                            Response = new Response()
+                        };
 
-                context.Response.StatusCode = 200;
-                context.Response.Content = new byte[]{};
-                context.Response.SetHeader("Content-Type", "text/plain");
-                context.Response.SetHeader("Server", "Tetsu");
+                        context.Response.StatusCode = 200;
+                        context.Response.Content = new byte[] { };
+                        context.Response.SetHeader("Content-Type", "text/plain");
+                        context.Response.SetHeader("Server", "Tetsu");
 
-                foreach (var middleware in middlewares)
-                {
-                    middleware.Process(context);
+                        foreach (var middleware in middlewares)
+                        {
+                            middleware.Process(context);
 
-                    if (context.StopProcessing) break;
+                            if (context.StopProcessing) break;
+                        }
+
+                        await context.Response.Serialize(stream, context);
+                    }
+                    catch (Exception)
+                    {
+                        break;
+                    }
                 }
-
-                await context.Response.Serialize(stream, context);
             }
         }
     }

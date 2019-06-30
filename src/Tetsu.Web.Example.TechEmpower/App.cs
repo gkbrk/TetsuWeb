@@ -1,15 +1,15 @@
 using System;
-using System.Linq;
 using Newtonsoft.Json;
+using Tetsu.Web;
 
-namespace Tetsu.Web.Example.TechEmpower {
-    public class App {
+namespace Benchmark {
+    public class Program {
         public static void Main() {
             var server = new Server();
 
             server.Handle("/plaintext", ctx =>
                 ctx.Response.TextContent = "Hello, World!");
-            
+
             server.Handle("/json", ctx => {
                 ctx.Response.SetHeader("Content-Type", "application/json");
                 ctx.Response.TextContent = JsonConvert.SerializeObject(new {
@@ -17,14 +17,10 @@ namespace Tetsu.Web.Example.TechEmpower {
                 });
             });
 
-            server.AddMiddleware(ctx => {
-                Console.WriteLine($"URL = {ctx.Request.Uri}");
+            server.AddMiddleware(ctx =>
+                ctx.Response.SetHeader("Date", DateTime.UtcNow.ToString("r")));
 
-                var ua = ctx.Request.Headers.Single(x => x.Item1 == "User-Agent").Item2;
-                Console.WriteLine($"User Agent = {ua}");
-            });
-
-            server.Listen("127.0.0.1", 1234).Wait();
+            server.Listen("0.0.0.0", 1234).Wait();
         }
     }
 }
