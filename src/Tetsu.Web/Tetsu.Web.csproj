@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>Tetsu.Web</PackageId>
-        <Version>0.1.1</Version>
+        <Version>0.1.2</Version>
         <Authors>Leo</Authors>
         <Company>gkbrk.com</Company>
         <Description>Quick and easy web microframework</Description>
