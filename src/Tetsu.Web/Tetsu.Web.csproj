@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>Tetsu.Web</PackageId>
-        <Version>0.1.3</Version>
+        <Version>0.1.4</Version>
         <Authors>Leo</Authors>
         <RepositoryUrl>https://github.com/gkbrk/TetsuWeb</RepositoryUrl>
         <Company>gkbrk.com</Company>
