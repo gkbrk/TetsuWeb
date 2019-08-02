@@ -29,18 +29,16 @@ namespace Tetsu.Web.Http {
         }
 
         public async Task Serialize(Stream stream, HttpContext context) {
-            Task WriteString(string x) =>
-                stream.WriteAsync(Encoding.UTF8.GetBytes(x), 0, x.Length);
-            
-            await WriteString($"HTTP/1.1 {StatusCode} Lel\r\n");
-            await WriteString($"Content-Length: {Content.LongLength}\r\n");
+            var sb = new StringBuilder($"HTTP/1.1 {StatusCode} Lel\r\n" +
+                                       $"Content-Length: {Content.LongLength}\r\n");
 
             foreach (var header in headers)
             {
-                await WriteString($"{header.Item1}: {header.Item2}\r\n");
+                sb.Append($"{header.Item1}: {header.Item2}\r\n");
             }
 
-            await WriteString("\r\n");
+            sb.Append("\r\n");
+            await stream.WriteAsync(Encoding.UTF8.GetBytes(sb.ToString()), 0, sb.Length);
             await stream.WriteAsync(Content, 0, Content.Length);
         }
     }

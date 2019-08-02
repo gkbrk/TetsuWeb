@@ -8,7 +8,7 @@ namespace Tetsu.Web.Tests.Router {
         [Fact]
         public void MatchRoute_ShouldMatch() {
             var router = GetRouter();
-            var req = Parser.ParseRequest("GET /test HTTP/1.1\r\n");
+            var req = Parser.ParseRequest("GET /test HTTP/1.1\r\n\r\n");
 
             Assert.NotNull(router.GetMatchingRoute(req));
         }
@@ -16,7 +16,7 @@ namespace Tetsu.Web.Tests.Router {
         [Fact]
         public void MatchRoute_ShouldNotMatch() {
             var router = GetRouter();
-            var req = Parser.ParseRequest("GET /hmm HTTP/1.1\r\n");
+            var req = Parser.ParseRequest("GET /hmm HTTP/1.1\r\n\r\n");
 
             Assert.Null(router.GetMatchingRoute(req));
         }

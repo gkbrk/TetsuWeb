@@ -44,36 +44,41 @@ namespace Tetsu.Web
 
             while (true)
             {
-                var sock = await listener.AcceptTcpClientAsync();
-                var stream = sock.GetStream();
-                var reader = new StreamReader(stream);
+                var sock = await listener
+                    .AcceptTcpClientAsync()
+                     .ConfigureAwait(false);
 
-                var _ = Task.Run(async () => {
-                    try {
-                        while (true) {
-                            var context = new HttpContext
-                            {
-                                Request = await Parser.ParseRequest(reader),
-                                Response = new Response()
-                            };
-
-                            context.Response.StatusCode = 200;
-                            context.Response.Content = new byte[] { };
-                            context.Response.SetHeader("Content-Type", "text/plain");
-                            context.Response.SetHeader("Server", "Tetsu");
-
-                            foreach (var middleware in middlewares)
-                            {
-                                middleware.Process(context);
-
-                                if (context.StopProcessing) break;
-                            }
-
-                            await context.Response.Serialize(stream, context);
-                        }
-                    } catch (Exception) {}
-                });
+                var _ = HandleConnection(sock);
             }
+        }
+
+        public async Task HandleConnection(TcpClient sock) {
+            var stream = sock.GetStream();
+            var reader = new StreamReader(stream);
+
+            try {
+                while (true) {
+                    var context = new HttpContext
+                    {
+                        Request = await Parser.ParseRequest(reader),
+                                Response = new Response()
+                    };
+
+                    context.Response.StatusCode = 200;
+                    context.Response.Content = new byte[] { };
+                    context.Response.SetHeader("Content-Type", "text/plain");
+                    context.Response.SetHeader("Server", "Tetsu");
+
+                    foreach (var middleware in middlewares)
+                    {
+                        middleware.Process(context);
+
+                        if (context.StopProcessing) break;
+                    }
+
+                    await context.Response.Serialize(stream, context);
+                }
+            } catch (Exception) {}
         }
     }
 }
