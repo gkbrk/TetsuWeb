@@ -20,7 +20,7 @@ namespace Tetsu.Web.Http {
             }
 
             return new Request {
-                Method = reqParts[0],
+                Method = reqParts[0].ToUpper(),
                 Uri = reqParts[1],
                 Version = reqParts[2],
                 Headers = headers,

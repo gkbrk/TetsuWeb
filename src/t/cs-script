@@ -1,0 +1,55 @@
+#!/bin/sh
+
+code=$(cat $1 | tail -n +2)
+usings=$(echo "$code" | grep "^using .*;$")
+code=$(echo "$code" | grep -v "^using .*;$")
+dir=$(mktemp -d)
+pwd=$(pwd)
+
+cat > "$dir/Program.cs" <<EOF
+using System;
+$usings
+
+public class ScriptTempClass {
+    public static int NumTest = 0;
+
+    public static void Main() {
+        $code
+    }
+
+    public static void Plan(int tests) {
+        System.Console.WriteLine($"1..{tests}");
+    }
+
+    public static void DoneTesting() {
+        System.Console.WriteLine($"1..{NumTest}");
+    }
+
+    public static void Ok(bool condition, string message="") {
+        NumTest++;
+        var outcome = condition ? "ok" : "not ok";
+
+        System.Console.WriteLine($"{outcome} {NumTest} - {message}");
+    }
+
+    public static void Diag(string msg) {
+        System.Console.WriteLine($"# {msg}");
+    }
+}
+EOF
+
+cat > "$dir/Test.csproj" <<EOF
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$pwd/Tetsu.Web/Tetsu.Web.csproj" />
+  </ItemGroup>
+</Project>
+EOF
+
+dotnet run --project "$dir/Test.csproj"
+
+rm -rf "$dir"

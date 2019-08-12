@@ -3,13 +3,13 @@ all:
 	dotnet build
 
 .PHONY: test
-test:
-	dotnet test
+test: all
+	prove -j4
 
 .PHONY: watchbuild
 watchbuild:
-	while true; do inotifywait -e modify -r .; dotnet build; done;
+	while true; do inotifywait -e modify -r .; make all; done;
 
 .PHONY: watchtest
 watchtest:
-	while true; do inotifywait -e modify -r .; dotnet test; done;
+	while true; do inotifywait -e modify -r .; make test; done;
